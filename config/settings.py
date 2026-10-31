@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'inventario',
     'saludos',
     'biblioteca',
+    'colegio',
 ]
 
 MIDDLEWARE = [

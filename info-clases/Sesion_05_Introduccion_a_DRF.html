@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Sesión 5 — Introducción a Django REST Framework</title>
+<style>
+  body { font-family: Calibri, 'Segoe UI', Arial, sans-serif; color: #222; max-width: 900px; margin: 30px auto; padding: 0 20px; line-height: 1.5; }
+  .banner { background-color: #1f4e79; color: #fff; padding: 18px 22px; border-radius: 6px; }
+  .banner h1 { margin: 0; font-size: 22px; }
+  .subtitle { font-style: italic; color: #2c5aa0; margin: 10px 2px 22px; font-size: 14px; }
+  table.infotable { width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 14px; }
+  table.infotable td { border: 1px solid #bbc9d9; padding: 8px 10px; }
+  table.infotable td.label { background-color: #dce6f2; font-weight: bold; width: 12%; }
+  table.sessiontable { width: 100%; border-collapse: collapse; margin-bottom: 26px; font-size: 12.5px; }
+  table.sessiontable th { background-color: #1f4e79; color: #fff; padding: 8px 6px; }
+  table.sessiontable td { border: 1px solid #ccc; padding: 8px 6px; vertical-align: top; }
+  table.sessiontable td.tema { font-weight: bold; color: #b5651d; font-style: italic; }
+  .section-header { background-color: #b5651d; color: #fff; font-weight: bold; font-size: 15px; padding: 9px 14px; border-radius: 3px; margin: 30px 0 12px; }
+  .callout-key { border-left: 4px solid #4caf50; background-color: #eaf7ea; padding: 10px 14px; margin: 15px 0; }
+  .callout-error { border-left: 4px solid #e08a3c; background-color: #fdf1e3; padding: 10px 14px; margin: 15px 0; }
+  pre { background-color: #1e1e1e; color: #d4d4d4; padding: 12px 16px; border-radius: 4px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5; }
+  code { font-family: Consolas, 'Courier New', monospace; background-color: #eee; padding: 2px 5px; border-radius: 3px; color: #a6350f; }
+  pre code { background: none; padding: 0; color: inherit; }
+  table.simple { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; }
+  table.simple th, table.simple td { border: 1px solid #ccc; padding: 8px 10px; text-align: left; vertical-align: top; }
+  table.simple th { background-color: #f0f0f0; }
+  table.errores td.mark { color: #c0392b; font-weight: bold; width: 4%; }
+  table.checklist td.mark { width: 4%; font-size: 16px; }
+  ol, ul { padding-left: 22px; }
+  li { margin-bottom: 6px; }
+  .footer-note { font-style: italic; color: #666; border-top: 1px solid #ddd; padding-top: 12px; margin-top: 34px; font-size: 13.5px; }
+</style>
+</head>
+<body>
+
+<div class="banner">
+  <h1>SESIÓN DE CLASE — Django REST Framework + API (FastAPI) + Proyecto Integrador</h1>
+</div>
+<div class="subtitle">Sesión N° 5 — 9 Octubre de 2026 (Viernes) — Bloque 1: Django REST Framework</div>
+
+<table class="infotable">
+  <tr><td class="label">Instructor</td><td>César Augusto Moreno Mena</td><td class="label">Centro</td><td>CESGE</td></tr>
+  <tr><td class="label">Curso</td><td>Django REST Framework + API (FastAPI) + Proyecto Integrador</td><td class="label">Año</td><td>2026</td></tr>
+</table>
+
+<table class="sessiontable">
+<tr><th>N°</th><th>Fecha</th><th>Día</th><th>Semana</th><th>Bloque</th><th>Tema de la sesión</th><th>Teoría</th><th>Ejemplo</th><th>Práctica</th></tr>
+<tr>
+  <td>5</td><td>9 Octubre</td><td>Viernes</td><td>S2</td><td>Bloque 1: Django REST Framework</td>
+  <td class="tema">Introducción a Django REST Framework</td>
+  <td>Instalación y configuración de DRF, filosofía y componentes principales del framework.</td>
+  <td>Configuración inicial de DRF sobre el proyecto existente.</td>
+  <td>Instalación y configuración de DRF en el proyecto personal.</td>
+</tr>
+</table>
+
+<div class="section-header">1. Objetivo de la sesión</div>
+<p>Al finalizar esta sesión, el aprendiz será capaz de <strong>instalar y configurar Django REST Framework (DRF)</strong> sobre un proyecto Django existente, explicar con sus propias palabras <strong>qué problema resuelve</strong> frente a las vistas tradicionales de Django, e identificar los <strong>componentes principales</strong> del framework (serializers, vistas, routers) que se trabajarán en las próximas sesiones.</p>
+
+<div class="section-header">2. ¿Qué es Django REST Framework y para qué sirve?</div>
+<p>Hasta ahora construimos un proyecto Django ("Biblioteca") cuyas vistas devolvían texto plano con <code>HttpResponse</code> o páginas HTML con <code>Templates</code>. Eso funciona para un sitio web, pero no sirve si queremos que una app móvil, un frontend en React o cualquier otro sistema <strong>consuma nuestros datos</strong> sin depender de HTML.</p>
+<p><strong>Django REST Framework (DRF)</strong> es una librería que se instala sobre Django y añade todo lo necesario para exponer nuestros modelos como una <strong>API REST</strong>: convierte objetos Python/QuerySets a JSON (y viceversa), gestiona automáticamente los códigos de estado HTTP, ofrece autenticación y permisos listos para usar, y genera una interfaz de documentación navegable en el propio navegador.</p>
+<div class="callout-key">
+  💡 <strong>Idea clave</strong><br>
+  DRF no reemplaza a Django: se construye <em>encima</em> de Django. Los modelos, migraciones y el ORM que ya conoces siguen siendo exactamente los mismos. Lo único que cambia es la "capa de salida": en vez de un Template HTML, la vista devuelve JSON.
+</div>
+<p>Los tres componentes que iremos dominando en las próximas sesiones son:</p>
+<table class="simple">
+<tr><th>Componente</th><th>¿Qué hace?</th></tr>
+<tr><td><strong>Serializer</strong></td><td>Traduce un objeto de modelo (o un QuerySet) a JSON, y valida/convierte JSON entrante de vuelta a datos de Python.</td></tr>
+<tr><td><strong>Vista (APIView / ViewSet)</strong></td><td>Recibe la petición HTTP, usa el serializer y el modelo, y decide qué respuesta y qué código de estado enviar.</td></tr>
+<tr><td><strong>Router</strong></td><td>Genera automáticamente las URLs de un CRUD completo a partir de un ViewSet, sin escribirlas una por una.</td></tr>
+</table>
+
+<div class="section-header">3. Instalación y configuración de DRF</div>
+<p>Vamos a instalar DRF sobre el mismo proyecto "Biblioteca" que construimos entre las sesiones 1 y 4.</p>
+<p><strong>Paso 1: Activar el entorno virtual del proyecto</strong></p>
+<pre><code># Windows
+venv\Scripts\activate
+# Mac/Linux
+source venv/bin/activate</code></pre>
+<p><strong>Paso 2: Instalar Django REST Framework</strong></p>
+<pre><code>pip install djangorestframework</code></pre>
+<p><strong>Paso 3: Registrar la app en el proyecto</strong></p>
+<p>Abre <code>config/settings.py</code> y agrega <code>'rest_framework'</code> a <code>INSTALLED_APPS</code>, igual que registramos <code>biblioteca</code> en la sesión 1:</p>
+<pre><code>INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'rest_framework',   # &lt;-- Django REST Framework
+    'biblioteca',
+]</code></pre>
+<div class="callout-error">
+  ⚠ <strong>Error común</strong><br>
+  Olvidar este paso produce el error <code>ModuleNotFoundError</code> o que las vistas de DRF (como el navegador de la API) no aparezcan estilizadas. Recuerda: instalar con <code>pip</code> no es suficiente, siempre hay que registrar la app en <code>INSTALLED_APPS</code>.
+</div>
+<p><strong>Paso 4 (opcional pero recomendado): configuración global básica</strong></p>
+<p>En <code>settings.py</code> podemos definir comportamientos por defecto para toda la API, como la paginación (que veremos en detalle en la sesión 13):</p>
+<pre><code>REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+}</code></pre>
+
+<div class="section-header">4. Ejemplo guiado: primer endpoint DRF</div>
+<p>Vamos a crear el endpoint más simple posible: una vista basada en función, decorada con <code>@api_view</code>, que devuelve el listado de libros en formato JSON.</p>
+<p>En <code>biblioteca/views.py</code>, agrega:</p>
+<pre><code>from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import Libro
+
+@api_view(['GET'])
+def listado_libros(request):
+    libros = Libro.objects.all()
+    datos = [
+        {
+            "id": libro.id,
+            "titulo": libro.titulo,
+            "autor": libro.autor.nombre,
+            "precio": libro.precio,
+            "disponible": libro.disponible,
+        }
+        for libro in libros
+    ]
+    return Response(datos)</code></pre>
+<p>Conecta la vista en <code>biblioteca/urls.py</code>:</p>
+<pre><code>from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('resumen/', views.resumen, name='resumen'),
+    path('api/libros/', views.listado_libros, name='api_libros'),
+]</code></pre>
+<p>Levanta el servidor con <code>python manage.py runserver</code> y visita <code>http://127.0.0.1:8000/biblioteca/api/libros/</code>. En vez de una página HTML común, DRF te muestra la <strong>Browsable API</strong>: una interfaz navegable con el JSON formateado, botones de método HTTP y opciones de filtro. Esta interfaz es una de las razones por las que DRF es tan usado: facilita muchísimo probar la API mientras se desarrolla.</p>
+
+<div class="section-header">5. Ejercicio práctico (para hacer en clase)</div>
+<ol>
+  <li>Instala <code>djangorestframework</code> en el entorno virtual de tu proyecto personal y verifica la versión instalada con <code>pip show djangorestframework</code>.</li>
+  <li>Registra <code>'rest_framework'</code> en <code>INSTALLED_APPS</code> de tu proyecto.</li>
+  <li>Crea una vista de función con <code>@api_view(['GET'])</code> que devuelva, en formato JSON, el listado completo de uno de tus modelos principales.</li>
+  <li>Conecta esa vista a una ruta <code>/api/&lt;recurso&gt;/</code> siguiendo el mismo procedimiento de <code>urls.py</code> + <code>include()</code> que ya conoces.</li>
+  <li>Abre la ruta en el navegador y confirma que ves la Browsable API de DRF (no un error 500 ni un HttpResponse plano).</li>
+  <li>Agrega al menos un campo calculado dentro del diccionario de respuesta (por ejemplo, un campo booleano o un texto derivado de otros atributos del modelo).</li>
+  <li>Configura en <code>settings.py</code> la sección <code>REST_FRAMEWORK</code> con una paginación por defecto de 5 elementos por página.</li>
+</ol>
+
+<div class="section-header">6. Errores comunes</div>
+<table class="simple errores">
+<tr><td class="mark">✗</td><td>Instalar DRF con <code>pip</code> pero olvidar registrarlo en <code>INSTALLED_APPS</code> → la Browsable API no se estiliza o directamente falla.</td></tr>
+<tr><td class="mark">✗</td><td>Olvidar el decorador <code>@api_view(['GET'])</code> sobre la función → DRF no reconoce la vista como parte de la API y algunas utilidades (como los renderers) no funcionan.</td></tr>
+<tr><td class="mark">✗</td><td>Devolver directamente un <code>QuerySet</code> o un objeto de modelo dentro de <code>Response()</code> sin convertirlo antes a un tipo serializable (dict, list) → error de serialización. Este problema se resuelve de raíz con los <strong>Serializers</strong> que veremos en la sesión 6.</td></tr>
+<tr><td class="mark">✗</td><td>No activar el entorno virtual antes de instalar DRF → la librería queda instalada fuera del proyecto y <code>ModuleNotFoundError</code> aparece al importar <code>rest_framework</code>.</td></tr>
+</table>
+
+<div class="section-header">7. Resumen de la sesión (checklist de aprendizaje)</div>
+<table class="simple checklist">
+<tr><td class="mark">☐</td><td>Sé instalar Django REST Framework dentro de un entorno virtual.</td></tr>
+<tr><td class="mark">☐</td><td>Sé registrar <code>rest_framework</code> en <code>INSTALLED_APPS</code>.</td></tr>
+<tr><td class="mark">☐</td><td>Puedo explicar con mis propias palabras qué problema resuelve DRF frente a las vistas tradicionales de Django.</td></tr>
+<tr><td class="mark">☐</td><td>Sé crear una vista de función con <code>@api_view</code> que devuelve JSON con <code>Response()</code>.</td></tr>
+<tr><td class="mark">☐</td><td>Puedo identificar los tres componentes principales de DRF: serializers, vistas y routers.</td></tr>
+</table>
+
+<div class="footer-note">Próxima sesión (14 de octubre): profundizamos en <strong>Serializers</strong> — la pieza que reemplaza los diccionarios manuales de hoy por una traducción automática, validada y reutilizable entre modelo y JSON.</div>
+
+</body>
+</html>

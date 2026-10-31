@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Sesión 6 — Serializers</title>
+<style>
+  body { font-family: Calibri, 'Segoe UI', Arial, sans-serif; color: #222; max-width: 900px; margin: 30px auto; padding: 0 20px; line-height: 1.5; }
+  .banner { background-color: #1f4e79; color: #fff; padding: 18px 22px; border-radius: 6px; }
+  .banner h1 { margin: 0; font-size: 22px; }
+  .subtitle { font-style: italic; color: #2c5aa0; margin: 10px 2px 22px; font-size: 14px; }
+  table.infotable { width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 14px; }
+  table.infotable td { border: 1px solid #bbc9d9; padding: 8px 10px; }
+  table.infotable td.label { background-color: #dce6f2; font-weight: bold; width: 12%; }
+  table.sessiontable { width: 100%; border-collapse: collapse; margin-bottom: 26px; font-size: 12.5px; }
+  table.sessiontable th { background-color: #1f4e79; color: #fff; padding: 8px 6px; }
+  table.sessiontable td { border: 1px solid #ccc; padding: 8px 6px; vertical-align: top; }
+  table.sessiontable td.tema { font-weight: bold; color: #b5651d; font-style: italic; }
+  .section-header { background-color: #b5651d; color: #fff; font-weight: bold; font-size: 15px; padding: 9px 14px; border-radius: 3px; margin: 30px 0 12px; }
+  .callout-key { border-left: 4px solid #4caf50; background-color: #eaf7ea; padding: 10px 14px; margin: 15px 0; }
+  .callout-error { border-left: 4px solid #e08a3c; background-color: #fdf1e3; padding: 10px 14px; margin: 15px 0; }
+  pre { background-color: #1e1e1e; color: #d4d4d4; padding: 12px 16px; border-radius: 4px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5; }
+  code { font-family: Consolas, 'Courier New', monospace; background-color: #eee; padding: 2px 5px; border-radius: 3px; color: #a6350f; }
+  pre code { background: none; padding: 0; color: inherit; }
+  table.simple { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; }
+  table.simple th, table.simple td { border: 1px solid #ccc; padding: 8px 10px; text-align: left; vertical-align: top; }
+  table.simple th { background-color: #f0f0f0; }
+  table.errores td.mark { color: #c0392b; font-weight: bold; width: 4%; }
+  table.checklist td.mark { width: 4%; font-size: 16px; }
+  ol, ul { padding-left: 22px; }
+  li { margin-bottom: 6px; }
+  .footer-note { font-style: italic; color: #666; border-top: 1px solid #ddd; padding-top: 12px; margin-top: 34px; font-size: 13.5px; }
+</style>
+</head>
+<body>
+
+<div class="banner">
+  <h1>SESIÓN DE CLASE — Django REST Framework + API (FastAPI) + Proyecto Integrador</h1>
+</div>
+<div class="subtitle">Sesión N° 6 — 14 Octubre de 2026 (Miércoles) — Bloque 1: Django REST Framework</div>
+
+<table class="infotable">
+  <tr><td class="label">Instructor</td><td>César Augusto Moreno Mena</td><td class="label">Centro</td><td>CESGE</td></tr>
+  <tr><td class="label">Curso</td><td>Django REST Framework + API (FastAPI) + Proyecto Integrador</td><td class="label">Año</td><td>2026</td></tr>
+</table>
+
+<table class="sessiontable">
+<tr><th>N°</th><th>Fecha</th><th>Día</th><th>Semana</th><th>Bloque</th><th>Tema de la sesión</th><th>Teoría</th><th>Ejemplo</th><th>Práctica</th></tr>
+<tr>
+  <td>6</td><td>14 Octubre</td><td>Miércoles</td><td>S3</td><td>Bloque 1: Django REST Framework</td>
+  <td class="tema">Serializers</td>
+  <td>ModelSerializer, validaciones personalizadas, campos calculados, serialización/deserialización de datos.</td>
+  <td>Creación de un serializer para el modelo principal con validaciones.</td>
+  <td>Diseño de los serializers del proyecto Django REST personal.</td>
+</tr>
+</table>
+
+<div class="section-header">1. Objetivo de la sesión</div>
+<p>Al finalizar esta sesión, el aprendiz será capaz de crear un <strong>ModelSerializer</strong>, entender la diferencia entre <strong>serializar</strong> (modelo → JSON) y <strong>deserializar</strong> (JSON → datos validados de Python), y agregar <strong>validaciones personalizadas</strong> y <strong>campos calculados</strong> a un serializer.</p>
+
+<div class="section-header">2. ¿Qué es un Serializer?</div>
+<p>La sesión pasada convertimos manualmente cada libro a un diccionario dentro de la vista. Eso funciona para un caso simple, pero se vuelve repetitivo y frágil: si mañana agregamos un campo al modelo, tendríamos que recordar añadirlo también en cada vista donde armamos el diccionario a mano.</p>
+<p>Un <strong>Serializer</strong> centraliza esa traducción en una sola clase, de forma parecida a como un <code>ModelForm</code> centraliza la validación de un formulario HTML. DRF ofrece dos formas principales:</p>
+<table class="simple">
+<tr><th>Clase</th><th>Uso</th></tr>
+<tr><td><code>serializers.Serializer</code></td><td>Se definen los campos a mano, uno por uno. Útil cuando los datos no vienen directamente de un modelo.</td></tr>
+<tr><td><code>serializers.ModelSerializer</code></td><td>Genera automáticamente los campos a partir de un modelo, igual que <code>ModelForm</code> lo hace con formularios. Es la opción que usaremos casi siempre.</td></tr>
+</table>
+<div class="callout-key">
+  💡 <strong>Idea clave</strong><br>
+  Un serializer hace <em>dos</em> trabajos, no solo uno: (1) convierte objetos Python a JSON para las respuestas (serialización), y (2) toma JSON entrante, lo valida y lo convierte en datos limpios de Python listos para guardar (deserialización). Es el equivalente DRF de un <code>ModelForm</code>.
+</div>
+
+<div class="section-header">3. Creación de un ModelSerializer</div>
+<p>Crea el archivo <code>biblioteca/serializers.py</code>:</p>
+<pre><code>from rest_framework import serializers
+from .models import Autor, Libro
+
+class AutorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Autor
+        fields = ['id', 'nombre', 'nacionalidad']
+
+class LibroSerializer(serializers.ModelSerializer):
+    autor_nombre = serializers.CharField(source='autor.nombre', read_only=True)
+
+    class Meta:
+        model = Libro
+        fields = ['id', 'titulo', 'autor', 'autor_nombre', 'precio', 'disponible', 'fecha_publicacion']</code></pre>
+<p><code>fields</code> puede ser una lista explícita (recomendado, evita exponer campos sin darte cuenta) o el valor especial <code>'__all__'</code> para incluir todos los campos del modelo. <code>autor_nombre</code> es un <strong>campo calculado de solo lectura</strong>: usa <code>source</code> para navegar la relación y traer el nombre del autor sin que el cliente de la API tenga que hacer una segunda consulta.</p>
+
+<p><strong>Usando el serializer desde el shell</strong> (repaso de la sesión 2, ahora aplicado a DRF):</p>
+<pre><code>python manage.py shell
+&gt;&gt;&gt; from biblioteca.models import Libro
+&gt;&gt;&gt; from biblioteca.serializers import LibroSerializer
+&gt;&gt;&gt; libro = Libro.objects.first()
+&gt;&gt;&gt; serializer = LibroSerializer(libro)
+&gt;&gt;&gt; serializer.data
+{'id': 1, 'titulo': 'Cien años de soledad', 'autor': 1, 'autor_nombre': 'Gabriel García Márquez', 'precio': '68000.00', 'disponible': True, 'fecha_publicacion': None}</code></pre>
+
+<div class="section-header">4. Validaciones personalizadas</div>
+<p>Además de las validaciones automáticas que DRF deriva del modelo (tipo de dato, longitud máxima, campos obligatorios), podemos agregar reglas propias de negocio con métodos <code>validate_&lt;campo&gt;</code> o <code>validate</code>:</p>
+<pre><code>class LibroSerializer(serializers.ModelSerializer):
+    autor_nombre = serializers.CharField(source='autor.nombre', read_only=True)
+
+    class Meta:
+        model = Libro
+        fields = ['id', 'titulo', 'autor', 'autor_nombre', 'precio', 'disponible', 'fecha_publicacion']
+
+    def validate_precio(self, value):
+        if value <= 0:
+            raise serializers.ValidationError("El precio debe ser mayor que cero.")
+        return value
+
+    def validate(self, data):
+        # Validación que involucra más de un campo a la vez
+        if not data.get('disponible', True) and data.get('precio', 0) == 0:
+            raise serializers.ValidationError("Un libro no disponible no puede tener precio 0.")
+        return data</code></pre>
+<p><code>validate_&lt;campo&gt;</code> valida un campo individual; <code>validate</code> (sin sufijo) recibe el diccionario completo y sirve para reglas que cruzan varios campos.</p>
+
+<p><strong>Deserialización y guardado de datos entrantes</strong> (simulando lo que hará una vista al recibir un POST):</p>
+<pre><code>&gt;&gt;&gt; datos_nuevos = {"titulo": "Rayuela", "autor": 1, "precio": 45000, "disponible": True}
+&gt;&gt;&gt; serializer = LibroSerializer(data=datos_nuevos)
+&gt;&gt;&gt; serializer.is_valid()
+True
+&gt;&gt;&gt; serializer.save()
+&lt;Libro: Rayuela&gt;</code></pre>
+<div class="callout-error">
+  ⚠ <strong>Error común</strong><br>
+  Llamar a <code>serializer.save()</code> sin haber llamado antes a <code>serializer.is_valid()</code> lanza una excepción. Siempre hay que validar primero; en las vistas de la sesión 9 y 10 usaremos <code>is_valid(raise_exception=True)</code> para que DRF devuelva automáticamente un error 400 con el detalle.
+</div>
+
+<div class="section-header">5. Ejercicio práctico (para hacer en clase)</div>
+<ol>
+  <li>Crea el archivo <code>serializers.py</code> en tu app principal y define un <code>ModelSerializer</code> para tu modelo más importante, listando explícitamente los campos que debe exponer.</li>
+  <li>Agrega al menos un campo calculado de solo lectura usando <code>source</code> (por ejemplo, el nombre de una relación en lugar de solo su ID).</li>
+  <li>Agrega una validación con <code>validate_&lt;campo&gt;</code> que rechace un valor inválido según la lógica de tu proyecto (por ejemplo, un precio o cantidad negativa).</li>
+  <li>Agrega una validación con <code>validate</code> que dependa de al menos dos campos a la vez.</li>
+  <li>Desde <code>python manage.py shell</code>, serializa un objeto existente e imprime <code>serializer.data</code>.</li>
+  <li>Desde el shell, intenta deserializar un diccionario con un dato inválido y verifica que <code>is_valid()</code> devuelva <code>False</code> y que <code>serializer.errors</code> muestre un mensaje claro.</li>
+  <li>Deserializa y guarda un diccionario con datos válidos usando <code>serializer.save()</code> y confirma en el Admin que el nuevo registro aparece.</li>
+</ol>
+
+<div class="section-header">6. Errores comunes</div>
+<table class="simple errores">
+<tr><td class="mark">✗</td><td>Usar <code>'__all__'</code> en <code>fields</code> sin pensarlo y exponer campos internos que no deberían salir en la API.</td></tr>
+<tr><td class="mark">✗</td><td>Definir un campo calculado sin <code>read_only=True</code> cuando en realidad no existe como columna en el modelo → error al intentar guardar.</td></tr>
+<tr><td class="mark">✗</td><td>Escribir la validación dentro del modelo o de la vista en lugar del serializer → la regla de negocio queda dispersa y es más difícil de mantener.</td></tr>
+<tr><td class="mark">✗</td><td>Llamar <code>.save()</code> antes de comprobar <code>.is_valid()</code> → excepción en tiempo de ejecución.</td></tr>
+</table>
+
+<div class="section-header">7. Resumen de la sesión (checklist de aprendizaje)</div>
+<table class="simple checklist">
+<tr><td class="mark">☐</td><td>Sé crear un <code>ModelSerializer</code> y elegir explícitamente sus <code>fields</code>.</td></tr>
+<tr><td class="mark">☐</td><td>Puedo explicar la diferencia entre serializar y deserializar.</td></tr>
+<tr><td class="mark">☐</td><td>Sé agregar un campo calculado de solo lectura con <code>source</code>.</td></tr>
+<tr><td class="mark">☐</td><td>Sé escribir validaciones con <code>validate_&lt;campo&gt;</code> y con <code>validate</code>.</td></tr>
+<tr><td class="mark">☐</td><td>Sé usar <code>is_valid()</code>, <code>errors</code> y <code>save()</code> desde el shell de Django.</td></tr>
+</table>
+
+<div class="footer-note">Próxima sesión (15 de octubre): usaremos estos serializers dentro de <strong>ViewSets y Routers</strong> para exponer un CRUD completo de la API en muy pocas líneas de código.</div>
+
+</body>
+</html>
