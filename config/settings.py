@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'saludos',
     'biblioteca',
     'colegio',
+    'matricula',
 ]
 
 MIDDLEWARE = [
